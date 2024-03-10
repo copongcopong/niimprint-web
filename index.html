@@ -185,7 +185,7 @@ let wrench = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="
           const text = document.getElementById('strForCanvas').value || 'Hello';
           ctx.font = "600 22px Arial";
           ctx.fillText(text, 108, 26);
-          ctx.font = "14px Courier";
+          ctx.font = "600 14px Serif";
           ctx.fillText(ts, 108, 52);
           console.log({myImage})
           ctx.drawImage(myImage, 12, 2, 91, 91);
@@ -196,7 +196,7 @@ let wrench = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="
           var svg = new Blob([icon], {type: 'image/svg+xml'});
           var url = DOMURL.createObjectURL(svg);
           img1.onload = function() {
-              ctx.drawImage(img1, 120, 66, 24, 24);
+              ctx.drawImage(img1, 110, 66, 24, 24);
               DOMURL.revokeObjectURL(url);
               img1 = null;
           }
@@ -206,7 +206,7 @@ let wrench = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="
           var svg = new Blob([wrench], {type: 'image/svg+xml'});
           var url = DOMURL.createObjectURL(svg);
           img2.onload = function() {
-              ctx.drawImage(img2, 160, 66, 24, 24);
+              ctx.drawImage(img2, 150, 66, 24, 24);
               DOMURL.revokeObjectURL(url);
               img2 = null;
           }
@@ -216,7 +216,7 @@ let wrench = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="
           var svg = new Blob([rocket], {type: 'image/svg+xml'});
           var url = DOMURL.createObjectURL(svg);
           img3.onload = function() {
-              ctx.drawImage(img3, 200, 66, 24, 24);
+              ctx.drawImage(img3, 190, 66, 24, 24);
               DOMURL.revokeObjectURL(url);
               img3 = null;
           }
