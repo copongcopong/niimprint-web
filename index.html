@@ -1,232 +1,324 @@
 <html>
-<head>
-  <script src="helpers.js"></script>
-  <script src="client.js"></script>
-  <script src="cmds.js"></script>
-  <script src="canvas.js"></script>
-  <style>
-    .on_connected {
-    }
-    .disabled {
-    }
-    .canvas {
-      border: 2px solid black;
-    }
-  </style>
-</head>
-<body>
-  <p>
-    <button id="connect">Connect</button>
-    <button id="disconnect" class="on_connected">Disconnect</button>
-    <button id="get_rfid" class="on_connected">Get RFID</button>
-    <button id="get_heartbeat" class="on_connected">Get Heartbeat</button>
-    <button id="get_info" class="on_connected">Get INFO</button>
-  </p>
-  <hr>
-  <p>
-    Device: <label id="device_name">Disconnected</label>
-  </p>
-  <hr>
-  <h3>Response:</h3>
-  <p>
-    <textarea id="response" cols="100" rows="10"></textarea>
-  </p>
-  <hr>
-  <h3>
-    Canvas:
-    <label id="canvas_label"></label>
-    <select id="canvas_size">
-      <option value="12x30x1">12x30</option>
-      <option value="12x30x1" selected>15x30</option>
-      <option value="12x50x1">15x50</option>
-    </select>
-    <select id="canvas_line_width">
-      <option value="1">1</option>
-      <option value="3">3</option>
-      <option value="5" selected>5</option>
-      <option value="8">8</option>
-      <option value="11">11</option>
-      <option value="13">13</option>
-      <option value="15">15</option>
-    </select>
-    <button id="clear_canvas">Clear</button>
-    <button id="draw_pattern">Pattern</button>
-    <button id="save_canvas">Save</button>
-    <button id="print" class="on_connected">Print</button>
-  </h3>
-  <p>
-    <canvas id="canvas" width="0" height="0" class="canvas"></canvas>
-  </p>
-  <hr>
-  <h3>
-    Log:
-    <button id="clear_log">Clear</button>
-  </h3>
-  <p>
-    <textarea id="log" cols="100" rows="10"></textarea>
-  </p>
-  <hr>
-  <p>
-    Kamil Trzciński (c) 2023,
-    <a href="https://github.com/ayufan/niimprint-web">github.com/ayufan/niimprint-web</a>.
-    Adopted from <a href="https://github.com/kjy00302/niimprint">github.com/kjy00302/niimprint</a></p>
-  <script>
-    const canvasFlipXY = true;
+  <head>
+    <script src="helpers.js"></script>
+    <script src="client.js"></script>
+    <script src="cmds.js"></script>
+    <script src="canvas.js"></script>
+    <script src="qrcode.min.js"></script>
+    <style>
+      .on_connected {
+      }
+      .disabled {
+      }
+      .canvas {
+        border: 2px solid black;
+      }
+    </style>
+  </head>
+  <body>
+    <p>
+      <button id="connect">Connect</button>
+      <button id="disconnect" class="on_connected">Disconnect</button>
+      <button id="get_rfid" class="on_connected">Get RFID</button>
+      <button id="get_heartbeat" class="on_connected">Get Heartbeat</button>
+      <button id="get_info" class="on_connected">Get INFO</button>
+    </p>
+    <hr />
+    <p>Device: <label id="device_name">Disconnected</label></p>
+    <hr />
+    <h3>Response:</h3>
+    <p>
+      <textarea id="response" cols="100" rows="10"></textarea>
+    </p>
+    <hr />
+    <h3>
+      Canvas:
+      <label id="canvas_label"></label>
+      <select id="canvas_size">
+        <option value="12x30x1">12x30</option>
+        <option value="12x30x1" selected>15x30</option>
+        <option value="12x50x1">15x50</option>
+      </select>
+      <select id="canvas_line_width">
+        <option value="1">1</option>
+        <option value="3">3</option>
+        <option value="5" selected>5</option>
+        <option value="8">8</option>
+        <option value="11">11</option>
+        <option value="13">13</option>
+        <option value="15">15</option>
+      </select>
+      <button id="clear_canvas">Clear</button>
+      <button id="draw_pattern">Pattern</button>
+      <button id="save_canvas">Save</button>
+      <button id="print" class="on_connected">Print</button>
+    </h3>
+    <p>
+      <canvas id="canvas" width="0" height="0" class="canvas"></canvas>
+    </p>
+    text <br>
+    <textarea id="strForCanvas">Hello Wizard of Oz!</textarea><br>
+    qrcode url<br>
+    <textarea id="urlQrcode">
+      https://jansolo.dev/qr/07daf1ad-c6bd-409c-a2e5-20c3f05e28c1
+    </textarea>
+    <br>
+    <button onclick="generateCanvas()">Go</button>
+    <hr />
+    <h3>
+      Log:
+      <button id="clear_log">Clear</button>
+    </h3>
+    <p>
+      <textarea id="log" cols="100" rows="10"></textarea>
+      <div id="qrcode"></div>
+    </p>
+    <hr />
+    <p>
+      Kamil Trzciński (c) 2023,
+      <a href="https://github.com/ayufan/niimprint-web"
+        >github.com/ayufan/niimprint-web</a
+      >. Adopted from
+      <a href="https://github.com/kjy00302/niimprint"
+        >github.com/kjy00302/niimprint</a
+      >
+    </p>
 
-    function updateConnected(deviceName = null) {
-      for (let el of document.getElementsByClassName("on_connected")) {
-        el.disabled = !deviceName;
-        if (!deviceName)
-          el.classList.add("disabled");
-        else
-          el.classList.remove("disabled");
+    <script>
+      const canvasFlipXY = true;
+      function drawCanvas() {
+        const canvas = document.getElementById("canvas");
+        const ctx = canvas.getContext("2d");
+        const text = document.getElementById('strForCanvas').value || 'Hello';
+        ctx.font = "600 22px Arial";
+        ctx.fillText(text, 100, 30);
+
+        
+        const src = document.querySelector("#qrcode img").src;
+
+        var img = document.createElement('img');
+img.src = src;
+
+        console.log({src})
+        ctx.drawImage(img, 7, 7, 82, 82);
+      }
+      function generateCanvas() {
+        makeQrcode();
+
+        setTimeout(() => {
+          drawCanvas()
+        }, 100)
+       
       }
 
-      const deviceNameEl = document.getElementById('device_name');
-      if (deviceNameEl) {
-        deviceNameEl.textContent = deviceName ? toResponseString(deviceName) : 'Disconnected';
+      function makeQrcode() {
+        const url = document.getElementById('urlQrcode').value || "https://jansolo.dev/qr/z@qw1";
+      new QRCode(document.getElementById("qrcode"), url, {
+       
+    colorDark : "#000000",
+    colorLight : "#ffffff",
+    //correctLevel : QRCode.CorrectLevel.M
+      });
       }
-    }
+      
 
-    document.addEventListener("DOMContentLoaded", _ => updateConnected());
+      function updateConnected(deviceName = null) {
+        for (let el of document.getElementsByClassName("on_connected")) {
+          el.disabled = !deviceName;
+          if (!deviceName) el.classList.add("disabled");
+          else el.classList.remove("disabled");
+        }
 
-    function updateCanvasSize() {
-      const [w_mm, h_mm, t] = document.getElementById('canvas_size').value.split('x');
-
-      const canvas = document.getElementById('canvas');
-
-      if (canvasFlipXY) {
-        canvas.width = niimbotMmToPx(parseInt(h_mm));
-        canvas.height = niimbotMmToPx(parseInt(w_mm));
-        canvas.labelType = parseInt(t);
-      } else {
-        canvas.width = niimbotMmToPx(parseInt(w_mm));
-        canvas.height = niimbotMmToPx(parseInt(h_mm));
-        canvas.labelType = parseInt(t);
-      }
-
-      const canvas_label = document.getElementById('canvas_label');
-      canvas_label.textContent = `${canvas.width}x${canvas.height}T${T}`;
-    }
-
-    document.addEventListener("DOMContentLoaded", updateCanvasSize);
-    document.getElementById('canvas_size').addEventListener("change", updateCanvasSize);
-
-    document.getElementById('connect').addEventListener('click', async function() {
-      niimbotDisconnect();
-
-      let promise = niimbotConnect().then(bt => {
-        bt["device"].addEventListener('gattserverdisconnected', event => {
-          updateConnected();
-        }, { "once": true });
-
-        updateConnected(bt["device"].name);
-      }).then(_ => niimbotGetRFID());
-
-      return setAsyncResponse(promise, "BT");
-    });
-    document.getElementById('disconnect').addEventListener('click', function() {
-      niimbotDisconnect();
-    });
-    document.getElementById('get_rfid').addEventListener('click', async function() {
-      setAsyncResponse(niimbotGetRFID(), "RFID");
-    });
-    document.getElementById('get_heartbeat').addEventListener('click', async function() {
-      setAsyncResponse(niimbotGetHeartbeat(), "HEARTBEAT");
-    });
-    document.getElementById('get_info').addEventListener('click', async function() {
-      setAsyncResponse(niimbotGetInfo(), "INFO");
-    });
-    document.getElementById('clear_canvas').addEventListener('click', function() {
-      const canvas = document.getElementById('canvas');
-      const context = canvas.getContext('2d');
-      context.setTransform(1, 0, 0, 1, 0, 0);
-      context.clearRect(0, 0, canvas.width, canvas.height);
-    });
-    document.getElementById('draw_pattern').addEventListener('click', async function() {
-      const canvas = document.getElementById('canvas');
-      const context = canvas.getContext("2d");
-      const image = context.getImageData(0, 0, canvas.width, canvas.height);
-
-      context.clearRect(0, 0, canvas.width, canvas.height);
-
-      var off = 0;
-
-      for (let y = 0; y < image.height; y++) {
-        for (let x = 0; x < image.width; x++, off += 4) {
-          var color = (Math.floor(x/16) % 2) ^ (Math.floor(y/16) % 2);
-          image.data[off] = color ? 255 : 0;
-          image.data[off + 1] = color ? 255 : 0;
-          image.data[off + 2] = color ? 255 : 0;
-          image.data[off + 3] = 255;
+        const deviceNameEl = document.getElementById("device_name");
+        if (deviceNameEl) {
+          deviceNameEl.textContent = deviceName
+            ? toResponseString(deviceName)
+            : "Disconnected";
         }
       }
 
-      context.putImageData(image, 0, 0);
-    });
-    function canvasGetImageData(canvas, x, y, w, h, flipXY = false) {
-      const context = canvas.getContext("2d");
-      const image = context.getImageData(x, y, w, h);
+      document.addEventListener("DOMContentLoaded", (_) => updateConnected());
 
-      let data = [];
+      function updateCanvasSize() {
+        const [w_mm, h_mm, t] = document
+          .getElementById("canvas_size")
+          .value.split("x");
 
-      if (flipXY) {
-        for (let x = 0; x < image.width; x++) {
-          for (let y = image.height; y-- > 0; ) {
-            var off = (y * image.width + x) * 4;
-            const gray = (image.data[off] + image.data[off+1] + image.data[off+2]) / 3;
-            const alpha = (image.data[off+3]);
-            data.push(gray > 128 || alpha < 128 ? 0 : 1);
+        const canvas = document.getElementById("canvas");
+
+        if (canvasFlipXY) {
+          canvas.width = niimbotMmToPx(parseInt(h_mm));
+          canvas.height = niimbotMmToPx(parseInt(w_mm));
+          canvas.labelType = parseInt(t);
+        } else {
+          canvas.width = niimbotMmToPx(parseInt(w_mm));
+          canvas.height = niimbotMmToPx(parseInt(h_mm));
+          canvas.labelType = parseInt(t);
+        }
+
+        const canvas_label = document.getElementById("canvas_label");
+        canvas_label.textContent = `${canvas.width}x${canvas.height}T${T}`;
+      }
+
+      document.addEventListener("DOMContentLoaded", updateCanvasSize);
+      document
+        .getElementById("canvas_size")
+        .addEventListener("change", updateCanvasSize);
+
+      document
+        .getElementById("connect")
+        .addEventListener("click", async function () {
+          niimbotDisconnect();
+
+          let promise = niimbotConnect()
+            .then((bt) => {
+              bt["device"].addEventListener(
+                "gattserverdisconnected",
+                (event) => {
+                  updateConnected();
+                },
+                { once: true }
+              );
+
+              updateConnected(bt["device"].name);
+            })
+            .then((_) => niimbotGetRFID());
+
+          return setAsyncResponse(promise, "BT");
+        });
+      document
+        .getElementById("disconnect")
+        .addEventListener("click", function () {
+          niimbotDisconnect();
+        });
+      document
+        .getElementById("get_rfid")
+        .addEventListener("click", async function () {
+          setAsyncResponse(niimbotGetRFID(), "RFID");
+        });
+      document
+        .getElementById("get_heartbeat")
+        .addEventListener("click", async function () {
+          setAsyncResponse(niimbotGetHeartbeat(), "HEARTBEAT");
+        });
+      document
+        .getElementById("get_info")
+        .addEventListener("click", async function () {
+          setAsyncResponse(niimbotGetInfo(), "INFO");
+        });
+      document
+        .getElementById("clear_canvas")
+        .addEventListener("click", function () {
+          const canvas = document.getElementById("canvas");
+          const context = canvas.getContext("2d");
+          context.setTransform(1, 0, 0, 1, 0, 0);
+          context.clearRect(0, 0, canvas.width, canvas.height);
+        });
+      document
+        .getElementById("draw_pattern")
+        .addEventListener("click", async function () {
+          const canvas = document.getElementById("canvas");
+          const context = canvas.getContext("2d");
+          const image = context.getImageData(0, 0, canvas.width, canvas.height);
+
+          context.clearRect(0, 0, canvas.width, canvas.height);
+
+          var off = 0;
+
+          for (let y = 0; y < image.height; y++) {
+            for (let x = 0; x < image.width; x++, off += 4) {
+              var color = Math.floor(x / 16) % 2 ^ Math.floor(y / 16) % 2;
+              image.data[off] = color ? 255 : 0;
+              image.data[off + 1] = color ? 255 : 0;
+              image.data[off + 2] = color ? 255 : 0;
+              image.data[off + 3] = 255;
+            }
           }
-        }
 
-        return [data, image.height, image.width];
-      } else {
-        for (let y = 0; y < image.height; y++) {
-          for (let x = 0; x < image.width; x++) {
-            var off = (y * image.width + x) * 4;
-            const gray = (image.data[off] + image.data[off+1] + image.data[off+2]) / 3;
-            const alpha = (image.data[off+3]);
-            data.push(gray > 128 || alpha < 128 ? 0 : 1);
-          }
-        }
-
-        return [data, image.width, image.height];
-      }
-    }
-    document.getElementById('save_canvas').addEventListener('click', function() {
-      const canvas = document.getElementById('canvas');
-      localStorage.setItem("canvas", canvas.toDataURL());
-    });
-    document.getElementById('print').addEventListener('click', async function() {
-      const canvas = document.getElementById('canvas');
-      const labelType = canvas.labelType || 1;
-
-      let [data, width, height] = canvasGetImageData(canvas, 0, 0, canvas.width, canvas.height, canvasFlipXY);
-      setAsyncResponse(niimbotPrintImage(width, height, data, 1, labelType), "PRINT");
-    });
-    document.getElementById('clear_log').addEventListener('click', async function() {
-      document.getElementById('log').textContent = '';
-    });
-
-    document.addEventListener("DOMContentLoaded", _ => {
-      var dataURL = localStorage.getItem("canvas");
-      if (!dataURL)
-        return;
-
-      var img = new Image;
-      img.src = dataURL;
-      img.onload = function () {
-        const canvas = document.getElementById('canvas');
-        canvas.width = img.width;
-        canvas.height = img.height;
+          context.putImageData(image, 0, 0);
+        });
+      function canvasGetImageData(canvas, x, y, w, h, flipXY = false) {
         const context = canvas.getContext("2d");
-        context.drawImage(img, 0, 0);
+        const image = context.getImageData(x, y, w, h);
 
-        const canvas_label = document.getElementById('canvas_label');
-        canvas_label.textContent = `${canvas.width}x${canvas.height}`;
+        let data = [];
+
+        if (flipXY) {
+          for (let x = 0; x < image.width; x++) {
+            for (let y = image.height; y-- > 0; ) {
+              var off = (y * image.width + x) * 4;
+              const gray =
+                (image.data[off] + image.data[off + 1] + image.data[off + 2]) /
+                3;
+              const alpha = image.data[off + 3];
+              data.push(gray > 128 || alpha < 128 ? 0 : 1);
+            }
+          }
+
+          return [data, image.height, image.width];
+        } else {
+          for (let y = 0; y < image.height; y++) {
+            for (let x = 0; x < image.width; x++) {
+              var off = (y * image.width + x) * 4;
+              const gray =
+                (image.data[off] + image.data[off + 1] + image.data[off + 2]) /
+                3;
+              const alpha = image.data[off + 3];
+              data.push(gray > 128 || alpha < 128 ? 0 : 1);
+            }
+          }
+
+          return [data, image.width, image.height];
+        }
       }
-    });
-  </script>
-</body>
+      document
+        .getElementById("save_canvas")
+        .addEventListener("click", function () {
+          const canvas = document.getElementById("canvas");
+          localStorage.setItem("canvas", canvas.toDataURL());
+        });
+      document
+        .getElementById("print")
+        .addEventListener("click", async function () {
+          const canvas = document.getElementById("canvas");
+          const labelType = canvas.labelType || 1;
+
+          let [data, width, height] = canvasGetImageData(
+            canvas,
+            0,
+            0,
+            canvas.width,
+            canvas.height,
+            canvasFlipXY
+          );
+          setAsyncResponse(
+            niimbotPrintImage(width, height, data, 1, labelType),
+            "PRINT"
+          );
+        });
+      document
+        .getElementById("clear_log")
+        .addEventListener("click", async function () {
+          document.getElementById("log").textContent = "";
+        });
+
+      document.addEventListener("DOMContentLoaded", (_) => {
+        var dataURL = localStorage.getItem("canvas");
+        if (!dataURL) return;
+
+        var img = new Image();
+        img.src = dataURL;
+        img.onload = function () {
+          const canvas = document.getElementById("canvas");
+          canvas.width = img.width;
+          canvas.height = img.height;
+          const context = canvas.getContext("2d");
+          context.drawImage(img, 0, 0);
+
+          const canvas_label = document.getElementById("canvas_label");
+          canvas_label.textContent = `${canvas.width}x${canvas.height}`;
+        };
+      });
+    </script>
+  </body>
 </html>
