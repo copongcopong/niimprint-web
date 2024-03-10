@@ -88,6 +88,7 @@
       
     </p>
     <script src="https://cdn.jsdelivr.net/npm/qrcanvas@3"></script>
+    <script src="https://cdn.jsdelivr.net/npm/short-unique-id@latest/dist/short-unique-id.min.js"></script>
     <script>
       const canvasFlipXY = true;
       function drawCanvas() {
@@ -142,8 +143,12 @@
 </svg>`;
 
       function makeCanvas() {
-        const ts = "ts:" + new Date().getTime();
+        const uid = new ShortUniqueId();
+        const uidTs = uid.stamp(12);
+        const ts = "ts:" + uidTs;
         const url = "https://jansolo.dev/qr/" + ts;
+
+        log('TS uid:'+ uidTs, uid.parseStamp(uidTs))
         
         const q = qrcanvas.qrcanvas({
           cellSize: 8,
@@ -163,7 +168,7 @@
           const text = document.getElementById('strForCanvas').value || 'Hello';
           ctx.font = "600 22px Arial";
           ctx.fillText(text, 108, 26);
-          ctx.font = "600 12px Arial";
+          ctx.font = "600 14px Arial";
           ctx.fillText(ts, 108, 46);
           console.log({myImage})
           ctx.drawImage(myImage, 12, 2, 91, 91);
