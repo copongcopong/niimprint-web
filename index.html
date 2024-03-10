@@ -95,7 +95,7 @@
         const src = document.querySelector("#qrcode img").src;
 
         var img = document.createElement('img');
-img.src = src;
+        img.src = src;
 
         console.log({src})
         ctx.drawImage(img, 12, 2, 91, 91);
@@ -105,7 +105,7 @@ img.src = src;
 
         setTimeout(() => {
           drawCanvas()
-        }, 100)
+        }, 300)
        
       }
       let q;
