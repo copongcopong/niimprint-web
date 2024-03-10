@@ -65,6 +65,7 @@
     />
     <br> <br>
     <button style="padding: 5px 10px" onclick="generateCanvas()">Re-draw Canvas</button>
+    <div id="qrcode2"></div>
     <hr />
     <h3>
       Log:
@@ -78,7 +79,7 @@
     <p>
       
     </p>
-
+    <script src="https://cdn.jsdelivr.net/npm/qrcanvas@3"></script>
     <script>
       const canvasFlipXY = true;
       function drawCanvas() {
@@ -92,16 +93,16 @@
         ctx.fillText(text, 108, 26);
 
         
-        const src = document.querySelector("#qrcode img").src;
+        const src = document.querySelector("#qrcode2 img").src;
 
         var img = document.createElement('img');
         img.src = src;
 
-        console.log({src})
+        log('CANVAS: ', src)
         ctx.drawImage(img, 12, 2, 91, 91);
       }
       function generateCanvas() {
-        makeQrcode();
+        makeQrcode2();
 
         setTimeout(() => {
           drawCanvas()
@@ -120,7 +121,14 @@
     //correctLevel : QRCode.CorrectLevel.M
       });
       }
-      
+      let qrcode = new QRCode("qrcode2");
+
+      function makeQrcode2() {
+        const url = document.getElementById('urlQrcode').value || "https://jansolo.dev/qr/z@qw1";
+        qrcode.clear();
+        qrcode.makeCode(url);
+        
+      }
 
       function updateConnected(deviceName = null) {
         for (let el of document.getElementsByClassName("on_connected")) {
@@ -157,7 +165,7 @@
         }
 
         const canvas_label = document.getElementById("canvas_label");
-        canvas_label.textContent = `${canvas.width}x${canvas.height}T${T}`;
+        canvas_label.textContent = `${canvas.width}x${canvas.height}`;
       }
 
       document.addEventListener("DOMContentLoaded", updateCanvasSize);
