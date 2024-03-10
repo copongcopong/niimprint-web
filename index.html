@@ -57,7 +57,7 @@
       <canvas id="canvas" width="0" height="0" class="canvas"></canvas>
     </p>
     text <br>
-    <textarea style="width: 80%" id="strForCanvas">Hello Wizard of Oz!</textarea><br>
+    <textarea style="width: 80%" id="strForCanvas">Hello World!</textarea><br>
     qrcode url<br>
     <input type="text" id="urlQrcode" value="https://jansolo.dev/qr/07daf1ad-c6bd-409c-a2e5"
     style="width: 80%"
@@ -94,7 +94,7 @@
 
         const text = document.getElementById('strForCanvas').value || 'Hello';
         ctx.font = "600 22px Arial";
-        ctx.fillText(text, 100, 30);
+        ctx.fillText(text, 108, 26);
 
         
         const src = document.querySelector("#qrcode img").src;
@@ -103,7 +103,7 @@
 img.src = src;
 
         console.log({src})
-        ctx.drawImage(img, 12, 7, 82, 82);
+        ctx.drawImage(img, 12, 7, 88, 88);
       }
       function generateCanvas() {
         makeQrcode();
@@ -297,7 +297,7 @@ img.src = src;
             canvasFlipXY
           );
           setAsyncResponse(
-            niimbotPrintImage(width, height, data, 1, labelType),
+            niimbotPrintImage(width, height, data, 1, labelType, 3),
             "PRINT"
           );
         });
