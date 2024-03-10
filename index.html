@@ -57,13 +57,13 @@
       <canvas id="canvas" width="0" height="0" class="canvas"></canvas>
     </p>
     text <br>
-    <textarea id="strForCanvas">Hello Wizard of Oz!</textarea><br>
+    <textarea style="width: 80%" id="strForCanvas">Hello Wizard of Oz!</textarea><br>
     qrcode url<br>
-    <textarea id="urlQrcode">
-      https://jansolo.dev/qr/07daf1ad-c6bd-409c-a2e5-20c3f05e28c1
-    </textarea>
-    <br>
-    <button onclick="generateCanvas()">Go</button>
+    <input type="text" id="urlQrcode" value="https://jansolo.dev/qr/07daf1ad-c6bd-409c-a2e5"
+    style="width: 80%"
+    />
+    <br> <br>
+    <button style="padding: 5px 10px" onclick="generateCanvas()">Re-draw Canvas</button>
     <hr />
     <h3>
       Log:
@@ -89,6 +89,9 @@
       function drawCanvas() {
         const canvas = document.getElementById("canvas");
         const ctx = canvas.getContext("2d");
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
         const text = document.getElementById('strForCanvas').value || 'Hello';
         ctx.font = "600 22px Arial";
         ctx.fillText(text, 100, 30);
